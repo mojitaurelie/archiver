@@ -18,14 +18,20 @@ func main() {
 	flag.Parse()
 	if len(*path) == 0 {
 		fmt.Println("missing --path argument")
-		os.Exit(2)
+		os.Exit(1)
 	}
 	if *count < 1 {
 		fmt.Println("--count must be greater than 0")
+		os.Exit(2)
+	}
+	// If file or folder does not exist, stop the script
+	if _, err := os.Stat(*path); err != nil {
+		fmt.Println(err)
 		os.Exit(3)
 	}
-	if _, err := os.Stat(*path); err != nil {
-		err = os.MkdirAll(*path, 0750)
+	// Create archive folder if not exist
+	if _, err := os.Stat(*backupFolder); err != nil {
+		err = os.MkdirAll(*backupFolder, 0750)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(4)
@@ -39,7 +45,7 @@ func main() {
 	absDstPath, err := filepath.Abs(*backupFolder)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(5)
+		os.Exit(6)
 	}
 	if err := makeBackup(absSourcePath, absDstPath, *count); err != nil {
 		fmt.Println(err)
